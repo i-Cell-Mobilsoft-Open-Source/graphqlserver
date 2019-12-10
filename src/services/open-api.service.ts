@@ -7,9 +7,33 @@ import { get } from 'request-promise-native';
 import { string as strValidator } from '@hapi/joi';
 import { AnyObject } from '@loopback/repository';
 
+
+export interface OperationParamType {
+  name: string,
+  in: string,
+  description: string,
+  schema: { type: any }
+}
 @bind({ scope: BindingScope.TRANSIENT })
 export class OpenApiService {
   constructor() { }
+
+  addParameters(oasData: any, paramsToAdd: OperationParamType[]) {
+
+    for (const oas of oasData) {
+      const paths = Object.keys(oas.paths);
+      for (const path of paths) {
+        const methods = Object.keys(oas.paths[path]);
+        for (const method of methods) {
+          oas.paths[path][method].parameters = oas.paths[path][method].parameters || [];
+          const ownParams = oas.paths[path][method].parameters;
+          if (!ownParams.find((p: any) => p.name === 'sessionToken') && !ownParams.find((p: any) => p.$ref)) {
+            ownParams.push(...paramsToAdd);
+          }
+        }
+      }
+    }
+  }
 
 
   async validate(paths: string[]): Promise<boolean> {

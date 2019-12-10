@@ -1,4 +1,4 @@
-import {inject} from '@loopback/context';
+import { inject } from '@loopback/context';
 import {
   FindRoute,
   InvokeMethod,
@@ -19,15 +19,19 @@ export class MySequence implements SequenceHandler {
     @inject(SequenceActions.INVOKE_METHOD) protected invoke: InvokeMethod,
     @inject(SequenceActions.SEND) public send: Send,
     @inject(SequenceActions.REJECT) public reject: Reject,
-  ) {}
+  ) { }
 
   async handle(context: RequestContext) {
     try {
-      const {request, response} = context;
+      const { request, response } = context;
       const route = this.findRoute(request);
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);
-      this.send(response, result);
+      const headers = (request.headers as any) || {};
+      const header = headers.accept || 'application/json';
+      response.setHeader('Content-Type', header);
+      //console.log(response)
+      response.end(result);
     } catch (err) {
       this.reject(context, err);
     }

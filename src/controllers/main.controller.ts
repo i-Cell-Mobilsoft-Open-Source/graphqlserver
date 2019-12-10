@@ -6,15 +6,25 @@ export class MainController {
 
   constructor(
     @inject(RestBindings.Http.REQUEST) private req: Request,
-    @inject('oasConf') private oas: string) {
+    @inject('oasSchema') private oas: string) {
   }
 
-  @get('/graphql', {
+  @get('/test', {
+    parameters: [{ name: 'name', schema: { type: 'string' }, in: 'query' }],
+    'x-operation-name': 'test',
+    'x-controller-name': 'MyController',
     responses: {
-      '200': {},
+      '200': {
+        description: 'foo text',
+        content: {
+          'application/json': {
+            schema: { type: 'object' },
+          },
+        },
+      },
     },
   })
-  async graphql(): Promise<any> {
-    return 'test';
+  async test(): Promise<any> {
+    return JSON.stringify({ bar: 'test' });
   }
 }

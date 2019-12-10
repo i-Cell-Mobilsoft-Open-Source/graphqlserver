@@ -57,7 +57,7 @@ export class GraphQLService {
           ret[schema.info.title] = {
             ...ret[schema.info.title], ...{
               [op.path]: {
-                type: op.type === 'query' ? 1 : 0
+                [op.method]: op.type === 'query' ? 0 : 1
               }
             }
           }

@@ -6,6 +6,7 @@ import { AnyObject } from '@loopback/repository';
 const graphqlHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+import * as https from 'https';
 const csurf = require('csurf');
 const session = require('cookie-session');
 
@@ -13,32 +14,34 @@ export class ExpressServer {
   public app: express.Application;
   public lbApp: GqlApplication;
   private server: any;
+  private env: string = (process.env['ICGQL_ENV'] || 'prod').toLowerCase();
 
   constructor(options: ApplicationConfig = {}) {
     this.app = express();
-    this.lbApp = new GqlApplication(options);
+    this.lbApp = new GqlApplication({
+      ...options, ...{
+        rest: {
+          openApiSpec: {
+            disabled: process.env['ICGQL_NOAPI'] === 'true',
+            endpointMapping: {
+              '/openapi.json': { version: '3.0.0', format: 'json' },
+              '/openapi.yaml': { version: '3.0.0', format: 'yaml' },
+              '/openapi': { version: '3.0.0', format: 'yaml' }
+            },
+          },
+          apiExplorer: {
+            disabled: true,
+          },
+        }
+      }
+    });
   }
 
-  regMiddlewares() {
-    const env = (process.env['GQL_ENV'] || 'prod').toLowerCase();
-    let gqlConfig: AnyObject = {
-      schema: this.lbApp.getSync('gqlSchema'),
-    }
+  isProd() {
+    return this.env === 'prod';
+  }
 
-    if (env === 'dev') {
-      gqlConfig = {
-        ...gqlConfig, ...{
-          graphiql: true,
-          pretty: true,
-          // customFormatErrorFn: (error: any) => ({
-          //   message: error.message,
-          //   locations: error.locations,
-          //   stack: error.stack ? error.stack.split('\n') : [],
-          //   path: error.path,
-          // })
-        }
-      };
-    }
+  addMiddlewares() {
 
     // TODO: Uncomment if session is needed...
 
@@ -59,40 +62,87 @@ export class ExpressServer {
       noCache: true,
       permittedCrossDomainPolicies: false,
     }));
-    this.app.use(helmet.contentSecurityPolicy({
+
+    const cspConfig: any = {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: env === 'dev' ? ["'unsafe-inline'", "'unsafe-eval'"] : ["'none'"],
-        styleSrc: [env === 'dev' ? "'unsafe-inline'" : "'none'"],
-        imgSrc: ["'none'"],
+        scriptSrc: !this.isProd() ? ["'unsafe-inline'", "'unsafe-eval'", "'self'"] : ["'none'"],
+        styleSrc: !this.isProd() ? ["'unsafe-inline'", "'self'"] : ["'none'"],
+        imgSrc: !this.isProd() ? ["data:", "'self'"] : ["'none'"],
         mediaSrc: ["'none'"],
         objectSrc: ["'none'"],
-        upgradeInsecureRequests: false,
+        upgradeInsecureRequests: true,
         workerSrc: ["'none'"],
         fontSrc: ["'none'"],
+        frameSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'none'"],
+        childSrc: ["'none'"],
+        connectSrc: ["'self'"],
         blockAllMixedContent: true,
       }
-    }));
-    this.lbApp.mountExpressRouter('/', csurf());
+    }
+
+    if (this.isProd()) {
+      cspConfig.directives.requireSriFor = ["script", "style"];
+      process.env['DEBUG'] = process.env['DEBUG'] || 'http';
+    }
+
+    this.app.use(helmet.contentSecurityPolicy(cspConfig));
+
+    //this.lbApp.mountExpressRouter('/', csurf());
     this.app.use(helmet.referrerPolicy({ policy: 'no-referrer' }))
     this.app.use(bodyParser.json());
-    this.app.use('/graphql', graphqlHTTP(gqlConfig));
     this.app.use('/api', this.lbApp.requestHandler);
+    this.app.disable('x-powered-by');
 
+  }
+
+  addGraphQLMiddleware() {
+    let gqlConfig: AnyObject = {
+      schema: this.lbApp.getSync('gqlSchema'),
+    }
+
+    if (!this.isProd()) {
+      gqlConfig = {
+        ...gqlConfig, ...{
+          graphiql: true,
+          pretty: true,
+          // customFormatErrorFn: (error: any) => ({
+          //   message: error.message,
+          //   locations: error.locations,
+          //   stack: error.stack ? error.stack.split('\n') : [],
+          //   path: error.path,
+          // })
+        }
+      };
+    }
+    this.app.use('/graphql', graphqlHTTP(gqlConfig));
   }
 
   async boot() {
     await this.lbApp.boot();
-    await this.lbApp.loadOAS();
-    this.regMiddlewares();
+    this.addMiddlewares();
   }
 
   public async start() {
     await this.lbApp.start();
-    const port = this.lbApp.restServer.config.port || 3000;
-    const host = this.lbApp.restServer.config.host || '127.0.0.1';
-    this.server = this.app.listen(port, host);
+
+    const httpsOpts = {
+      key: this.lbApp.getSync('serverKey'),
+      cert: this.lbApp.getSync('serverCert')
+    }
+
+    if (httpsOpts.key) {
+      this.server = https.createServer(httpsOpts as any, this.app);
+      this.server.listen(this.lbApp.restServer.config.port, this.lbApp.restServer.config.host);
+    } else {
+      this.server = this.app.listen(this.lbApp.restServer.config.port, this.lbApp.restServer.config.host as any);
+    }
+
     await pEvent(this.server, 'listening');
+    await this.lbApp.loadOAS();
+    this.addGraphQLMiddleware();
   }
 
   // For testing purposes
