@@ -10,12 +10,9 @@ export class MainController {
   }
 
   @get('/test', {
-    parameters: [{ name: 'name', schema: { type: 'string' }, in: 'query' }],
-    'x-operation-name': 'test',
-    'x-controller-name': 'MyController',
     responses: {
       '200': {
-        description: 'foo text',
+        description: 'test desc',
         content: {
           'application/json': {
             schema: { type: 'object' },
@@ -25,6 +22,22 @@ export class MainController {
     },
   })
   async test(): Promise<any> {
-    return JSON.stringify({ bar: 'test' });
+    return { result: 'test' };
+  }
+
+  @get('/test2', {
+    responses: {
+      '200': {
+        description: 'test desc',
+        content: {
+          'text/plain': {
+            schema: { type: 'string' },
+          },
+        },
+      },
+    },
+  })
+  async test2(): Promise<any> {
+    return 'foo';
   }
 }

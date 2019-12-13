@@ -1,3 +1,4 @@
+import { OperationParamType } from './../types/index';
 import { bind, BindingScope } from '@loopback/core';
 const oasValidator = require('openapi-enforcer');
 import { inspect } from 'util';
@@ -8,17 +9,13 @@ import { string as strValidator } from '@hapi/joi';
 import { AnyObject } from '@loopback/repository';
 
 
-export interface OperationParamType {
-  name: string,
-  in: string,
-  description: string,
-  schema: { type: any }
-}
+
+
 @bind({ scope: BindingScope.TRANSIENT })
 export class OpenApiService {
   constructor() { }
 
-  addParameters(oasData: any, paramsToAdd: OperationParamType[]) {
+  addParameters(oasData: any, paramsToAdd: string[]) {
 
     for (const oas of oasData) {
       const paths = Object.keys(oas.paths);
@@ -27,8 +24,16 @@ export class OpenApiService {
         for (const method of methods) {
           oas.paths[path][method].parameters = oas.paths[path][method].parameters || [];
           const ownParams = oas.paths[path][method].parameters;
-          if (!ownParams.find((p: any) => p.name === 'sessionToken') && !ownParams.find((p: any) => p.$ref)) {
-            ownParams.push(...paramsToAdd);
+
+          for (const paramStr of paramsToAdd) {
+            const param = paramStr.split(':');
+            if (!ownParams.find((p: any) => p.name === param[2]) && !ownParams.find((p: any) => p.$ref)) {
+              ownParams.push({
+                in: param[0],
+                schema: { type: param[1] },
+                name: param[2]
+              });
+            }
           }
         }
       }

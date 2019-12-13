@@ -7,6 +7,7 @@ const graphqlHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 import * as https from 'https';
+import * as NoIntrospection from 'graphql-disable-introspection';
 const csurf = require('csurf');
 const session = require('cookie-session');
 
@@ -30,7 +31,7 @@ export class ExpressServer {
             },
           },
           apiExplorer: {
-            disabled: true,
+            disabled: this.isProd(),
           },
         }
       }
@@ -95,7 +96,9 @@ export class ExpressServer {
     this.app.use(bodyParser.json());
     this.app.use('/api', this.lbApp.requestHandler);
     this.app.disable('x-powered-by');
-
+    this.app.get('/', function (req, res) {
+      res.json({ status: 'OK' })
+    });
   }
 
   addGraphQLMiddleware() {
@@ -116,7 +119,10 @@ export class ExpressServer {
           // })
         }
       };
+    } else {
+      gqlConfig.validationRules = [NoIntrospection];
     }
+
     this.app.use('/graphql', graphqlHTTP(gqlConfig));
   }
 
@@ -143,6 +149,9 @@ export class ExpressServer {
     await pEvent(this.server, 'listening');
     await this.lbApp.loadOAS();
     this.addGraphQLMiddleware();
+    this.app.get('*', function (req, res) {
+      res.redirect('/');
+    });
   }
 
   // For testing purposes

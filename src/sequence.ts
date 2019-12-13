@@ -29,9 +29,7 @@ export class MySequence implements SequenceHandler {
       const result = await this.invoke(route, args);
       const headers = (request.headers as any) || {};
       const header = headers.accept || 'application/json';
-      response.setHeader('Content-Type', header);
-      //console.log(response)
-      response.end(result);
+      this.send(response, result);
     } catch (err) {
       this.reject(context, err);
     }
