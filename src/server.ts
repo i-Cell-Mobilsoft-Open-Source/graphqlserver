@@ -44,7 +44,7 @@ export class ExpressServer {
 
   addMiddlewares() {
 
-    // TODO: Uncomment if session is needed...
+    // TODO: Start here, and uncomment if session is needed...
 
     // const sessionExpiry = new Date(Date.now() + 60 * 60 * 1000);
     // this.app.use(session({
