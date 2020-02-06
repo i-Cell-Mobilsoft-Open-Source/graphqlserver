@@ -64,6 +64,8 @@ This requires [NodeJS](http://nodejs.org) 11+, but installing **NodeJS LTS** is 
 Git clone this repo, then run:
 
 ```
+git clone https://github.com/icellmobilsoft/graphqlserver.git /some/dir
+cd /some/dir
 npm install
 ```
 

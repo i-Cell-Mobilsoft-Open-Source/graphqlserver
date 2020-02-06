@@ -1,6 +1,6 @@
 {
   "name": "node-graphql-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A nearly zero-conf GraphQL layer builder. Automatically builds GQL layer from any number of REST APIs with OpenAPI spec.",
   "keywords": [
     "loopback-application",
@@ -15,6 +15,13 @@
     "zero conf"
   ],
   "main": "index.js",
+  "bugs": {
+    "url": "https://github.com/icellmobilsoft/graphqlserver/issues/new?assignees=&labels=&template=bug_report.md&title=%5BBUG%5D"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/icellmobilsoft/graphqlserver.git"
+  },
   "engines": {
     "node": ">=8.9"
   },
@@ -40,11 +47,8 @@
     "start": "node -r source-map-support/register .",
     "prepublishOnly": "npm run test"
   },
-  "repository": {
-    "type": "git"
-  },
-  "author": "",
-  "license": "",
+  "author": "Tamas Geschitz",
+  "license": "MIT",
   "files": [
     "README.md",
     "index.js",
