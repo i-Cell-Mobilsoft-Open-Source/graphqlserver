@@ -72,7 +72,7 @@ npm install
 The easiest way to run this is:
 
 ```
-node .
+npm start --  --baseUrl http://127.0.0.1:3000/api
 ```
 
 By default, the server will run on host **127.0.0.1** and port **3000**. You may change this using the **-host** and **--port** flags, respectively.
