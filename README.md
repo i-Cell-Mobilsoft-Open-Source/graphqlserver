@@ -17,11 +17,9 @@
 A nearly zero conf GraphQL layer generator, GraphQL server and standalone NodeJS REST API service in one. It has a dual purpose:
 
 - It can generate a fully functional GraphQL layer from any number of OpenAPI specs, providing a single endpoint for all your REST APIs.
-- It is also able to run as a standalone NodeJS service which can be used as the foundation for building secure REST APIs.
+- It is also able to run as a standalone NodeJS service which can be used as a foundation for building secure REST APIs.
 
 The goal of the project is to provide an "out-of-the-box" solution for the above problems, a tool that requires **very little config** and **zero coding** (in case of GraphQL layer).
-
-It's easy to install and use.
 
 ### Features
 
@@ -55,6 +53,7 @@ NodeJS service:
 
 - Containerization (Docker)
 - Better logging
+- Feature requests are welcome! :)
 
 ### Prerequisites
 
@@ -100,14 +99,14 @@ Once
 In order to set up a GraphQL layer, simply execute the following command.
 
 ```
-node . --oas http://domain.com:10001/openapi.json  --baseUrl http://domain.com
+npm start -- --oas http://domain.com:10001/openapi.json  --baseUrl http://domain.com
 ```
 
 This will fire up a GraphQL layer which is able to query the service running at port 10001 via GQL.
 However, you may supply multiple OAS arguments! fFr example, the following would generate a combined GQL layer for services running at port 10001 and 10002.
 
 ```
-node . --oas http://domain.com:10001/openapi.json --oas http://domain.com:10002/openapi.json  --baseUrl http://domain.com
+npm start -- --oas http://domain.com:10001/openapi.json --oas http://domain.com:10002/openapi.json  --baseUrl http://domain.com
 ```
 
 #### Passing parameters at startup
@@ -115,7 +114,7 @@ node . --oas http://domain.com:10001/openapi.json --oas http://domain.com:10002/
 You may pass one or more **--header** flags at startup time, as shown in the example below:
 
 ```
-node . --oas http://domain.com:10001/openapi.json   --baseUrl http://domain.com --header secretId:aba2332
+npm start -- --oas http://domain.com:10001/openapi.json   --baseUrl http://domain.com --header secretId:aba2332
 ```
 
 Each flag represents a HTTP header which will be passed to each request GraphQL makes to your REST API(s). This is a great way of defining values that don't change after startup (like constants). A header should be formatted like this: **name:value**.
@@ -127,7 +126,7 @@ If you need to pass data as part of the **query string** instead, use the **--qu
 Another flag you may find useful is **--param**. This allows you to define runtime parameters. Since this is stuff that may change after startup, it's up to the user to provide values of these parameters at runtime. The format is **type:schema:name** where **type** is one of "path, query, header, cookie", **schema** is the OpenAPI schema data type, such as "string" and **name** is the name of the parameter. For example, check this out:
 
 ```
-node . --oas http://domain.com:10001/openapi.json   --baseUrl http://domain.com --param header:string:login --param header:string:accessToken
+npm start -- --oas http://domain.com:10001/openapi.json   --baseUrl http://domain.com --param header:string:login --param header:string:accessToken
 ```
 
 This defines two runtime parameters, "login" and "accessToken". These will be available in all OAS operations (as OP params) and will be passed to the generated HTTP requests as headers (hence type=header), allowing you to write queries like this:
@@ -147,7 +146,7 @@ To learn more about OpenAPI parameter objects, see [this page](https://github.co
 When building the GraphQL layer, this tool will "convert" each OpenAPI operation to a GQL operation, either a mutation or a query. By default, only GET requests will be turned into queries. You may change this via the **--query** and **--mutation** flags. These will explicitly instruct the server to treat a certain OP as mutation or query, overriding the default behavior. The format is **httpMethod:path**. For instance:
 
 ```
-node . --oas http://domain.com:10001/openapi.json --oas http://domain.com:10002/openapi.jso --baseUrl http://domain.com --param header:string:login --param header:string:sessionToken --query post:/some/ep  --query post:/other/thing
+npm start -- --oas http://domain.com:10001/openapi.json --oas http://domain.com:10002/openapi.jso --baseUrl http://domain.com --param header:string:login --param header:string:sessionToken --query post:/some/ep  --query post:/other/thing
 ```
 
 This would convert the POST /some/ep and POST /other/thing to query ops. This **does not** mean that the requests will be called using GET, they gonna still use POST and whatever parameters they have defined in the OpenAPI schema. But now you can use these OPs in GraphQL queries.
@@ -157,7 +156,7 @@ This would convert the POST /some/ep and POST /other/thing to query ops. This **
 In order to run this as a normal NodeJS service, just execute the command:
 
 ```
-node .  --baseUrl http://127.0.0.1:3000/api
+npm start -- --baseUrl http://127.0.0.1:3000/api
 ```
 
 You may have to replace "127.0.0.1" with your host and "3000" with your port number.
@@ -181,7 +180,7 @@ However, before you start the server, you should set the following environment v
 
 ```
 export ICGQL_ENV=prod
-node .
+npm start [options]
 ```
 
 This will trigger "production mode", with the following effects:

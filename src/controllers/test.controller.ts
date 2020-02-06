@@ -1,13 +1,11 @@
-import { Request, RestBindings, get } from '@loopback/rest';
-import { inject } from '@loopback/context';
-
+import {Request, RestBindings, get} from '@loopback/rest';
+import {inject} from '@loopback/context';
 
 export class TestController {
-
   constructor(
     @inject(RestBindings.Http.REQUEST) private req: Request,
-    @inject('oasSchema') private oas: string) {
-  }
+    @inject('oasSchema') private oas: string,
+  ) {}
 
   @get('/ping', {
     responses: {
@@ -15,7 +13,7 @@ export class TestController {
         description: 'test desc',
         content: {
           'text/plain': {
-            schema: { type: 'string' },
+            schema: {type: 'string'},
           },
         },
       },

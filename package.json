@@ -1,11 +1,13 @@
 {
   "name": "graphql-server",
   "version": "1.0.0",
-  "description": "A nearly zero-configuration GraphQL layer generator and NodeJS server. Automatically builds GQL layer from any number of REST APIs with OpenAPI spec or runs REST APIs.",
+  "description": "A nearly zero-conf GraphQL layer builder. Automatically builds GQL layer from any number of REST APIs with OpenAPI spec.",
   "keywords": [
     "loopback-application",
     "loopback",
     "graphql",
+    "graphiql",
+    "gql",
     "REST",
     "api",
     "zero conf"
@@ -29,8 +31,8 @@
     "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
     "posttest": "npm run lint",
     "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
-    "docker:build": "docker build -t gql .",
-    "docker:run": "docker run -p 3000:3000 -d gql",
+    "docker:build": "docker build -t graphql-server .",
+    "docker:run": "docker run -p 3000:3000 -d graphql-server",
     "migrate": "node ./dist/migrate",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
