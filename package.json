@@ -1,11 +1,13 @@
 {
-  "name": "graphql-server",
+  "name": "node-graphql-server",
   "version": "1.0.0",
   "description": "A nearly zero-conf GraphQL layer builder. Automatically builds GQL layer from any number of REST APIs with OpenAPI spec.",
   "keywords": [
     "loopback-application",
     "loopback",
     "graphql",
+    "express",
+    "middleware",
     "graphiql",
     "gql",
     "REST",
