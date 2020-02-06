@@ -14,12 +14,12 @@
   - [Additional help](#additional-help)
   - [Running in production](#running-in-production)
 
-A nearly zero conf GraphQL layer generator, GraphQL server and standalone NodeJS REST API service in one. It has a dual purpose:
+A nearly zero conf GraphQL layer generator, GraphQL server and NodeJS REST API service in one. It has a dual purpose:
 
 - It can generate a fully functional GraphQL layer from any number of OpenAPI specs, providing a single endpoint for all your REST APIs.
 - It is also able to run as a standalone NodeJS service which can be used as a foundation for building secure REST APIs.
 
-The goal of the project is to provide an "out-of-the-box" solution for the above problems, a tool that requires **very little config** and **zero coding** (in case of GraphQL layer).
+The goal of the project is to provide a minimalist, "out-of-the-box" solution for the above problems. This is a tool that requires **very little config** and builds **zero coding** GraphQL layers.
 
 ### Features
 
@@ -42,7 +42,7 @@ GraphQL server:
 
 NodeJS service:
 
-- A Loopack 4 & Express server
+- A Loopack 4 & Express server (both can be used)
 - Can use any Express middleware
 - Automatically generates OpenAPI v3 schema
 - Can provide REST enpoints
